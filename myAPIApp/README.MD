@@ -1,0 +1,3 @@
+live demo at https://whoshoulditry.azurewebsites.net/
+
+Who Should I Try? Submission for Riot API Challenge by Wilson Huang (Blargz) for April 2016. Documentation can be found in the About page of the demo.
