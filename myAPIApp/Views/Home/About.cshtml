@@ -1,7 +1,140 @@
 ﻿@{
-    ViewBag.Title = "About";
+    ViewBag.Title = "About Who should I try";
 }
-<h2>@ViewBag.Title.</h2>
-<h3>@ViewBag.Message</h3>
+<h1>@ViewBag.Title</h1>
 
-<p>Use this area to provide additional information.</p>
+    <p> 
+        <h2>Abstract</h2>
+        Who Should I Try (WSIT) is a website designed to help players (new and old) find champions that are well suited for them based on a learned generative model.
+        WSIT took random players distributed evenly across the ranked tiers to build a champion preference correlation model, where champion mastery was the metric used to calculate
+        a players preference to the champion. The basic idea is that if many players enjoy both Thresh and Lucian, then perhaps there is some underlying similarity
+        between Thresh and Lucian. Or, more statistically speakings, the enjoyment of Lucian and enjoyment of Thresh are non-independent events. 
+        <br /><br />
+        Who Should I Try is my submission to the April 2016 Riot API Challenge. Link <a href="https://developer.riotgames.com/discussion/announcements/show/eoq3tZd1"> here</a>
+        <br/><br/>
+        &copy; @DateTime.Now.Year Wilson Huang (Blargz), all ideas and content not of direct ownership to Riot Games.
+        
+        <br /><br />
+
+        <h2>Full Documentation</h2>
+
+        <h3>Introduction</h3>
+
+        The motivation for WSIT came from an all too familiar situation. An enthusiastic LoL player, Summoner43, has acquired another victory on his favourite champion Ezreal. With this win
+        , he has earned just over 6300 IP! Summoner43 quickly visits the League of Legends store, and sorts the champions by decreasing IP price because all the fun champions cost at least 
+        4800. Summoner43 quickly clicks Riven, as he's been dying to play as the exiled blade for two weeks now. However, right before he clicks purchase, he hesitates. He has used
+        up all 3 of his refunds already making purchases just like this one. He is sure that he wants to try Riven, but is not certain he will enjoy it. At the same time, Wukong has been
+        in his mind for a while aswell, but the lack of a refund leaves no plan B if Riven turns out to be a flop. He decides to check the free-champion rotation schedule, but to his misfortune,
+        neither Wukong nor Riven is scheduled for anytime soon! An additional 6300 IP would take another two weeks to earn, and at this point he has already gotten somewhat bored of his favourite champion Ezreal. 
+
+        <br /><br />
+        As LoL players, we have all been in Summoner43's position (If you haven't, consider yourself lucky!). We have purchased champions that we wish we could refund, and spent
+        some time regretting the choices that we've made. For the incoming players, there are more champions than ever, and this situation probably occurs more often. WSIT is a tool that supports players in these situations by sharing the experiences of other players similar to themselves. By taking the most
+        preferred champions of over 2000 players, WSIT "learned" what it believes to be underlying correlations between champion preference. Then, based on the learned correlations,
+        WSIT can intelligently suggest champions for players to try, based on the champions that these players currently enjoy.
+
+        WSIT chooses to use a learned model rather than algorithmic processing because the nature of this job is very difficult algorithmically. This may be demonstrated easily with
+        a simple example (If you don't need convincing that this task is algorithmically difficult, jump straight to the technical implementation!):
+
+        <h3>Algorithmic Processing vs Learned Model</h3>
+
+        It may seem logical that if player A likes playing Lucian, then player A would also enjoy playing Ezreal, since both champions
+        are ability-based marksmen with lots of mobility. However, this type of champion-similar association is exhaustive because we cannot know which of the
+        above facts exactly it is that player A enjoyed about Lucian. That is, did player A enjoy Lucian because:
+
+        <br /><br />
+        <ul>
+            <li>Lucian is a marksman?</li>
+            <li>Lucian is mobile?</li>
+            <li>Lucian is like a caster?</li>
+        </ul>
+
+        <br />
+        We don't know. However, suppose we know instead that player A enjoyed Lucian, Lux, and Brand equally as much. If we consider the each of these 3 champions as one
+        part of a venn diagram, then we may infer that the overlapping aspects of these champions - ability casting - is what player A enjoys. And so, we may suggest more
+        champions that are heavily ability based. 
+
+        <i>But that example seemed to be doable by following a fixed instruction set - isn't that exactly what algorithmic processing is?</i> Indeed, the above example is doable algorithmically.
+        However, the situation turns complex very quickly. What if, instead of Lucian, Lux and Brand, our player instead preferred Sion, Lucian, and Talon? Can one even construct a venn-diagram
+        that has a triple-intersecting region? Additionally, what about a fourth heavily preferred champion? Our algorithmic rules of identifying champion overlap no longer makes sense.
+
+        <h4> The learned model</h4>
+        The learned model proposes a different solution to the problem. Instead of trying to look at the data and analyze it each time, we will aggregate information on thousands of games.
+        This aggregate data will generate a probabilistic relationship between champion preferences. By looking at thousands of players' champion preferences, we are making the conclusion that
+        if a significant portion of our data points enjoy playing both Lucian and Sion, then there is <i>probably</i> some aspect of Lucian that translates very well into Sion, despite the fact
+        that these two champions have entirely different roles. By accumulating enough data, we may make suggestions with more and more confidence.
+
+        <h3>The technical Implementation - How <b>Exactly</b> does WSIT work?</h3>
+        
+
+        <h4> The data structure </h4> 
+        Prior to discussing how learning occurs, it is useful to discuss how the learned model is saved. WSIT stores all pair-wise champion correlations in a NxN array, where N
+        is the number of champions in the game. If we call this array G, then the entry G[i, j] contains the correlation between champions i and j. For all i, j, G[i,j] = G[j,i],
+        and G[i,i] = 0 for all i. Thus, consider a row (or column) of G, G[i]. This row thus represents the amount that champion i is correlated to every other champion in the game.
+        To make a suggestion, we would simply return the champion that has the largest correlation in this row.  
+        <br />
+
+        To make a suggestion based on more than one input champion, WSIT take a average of the relevant rows, entry by entry, and return the maximum value thereafter.
+        To build this table from player data, we aggregate the correlation information gained from individual players into entries of this correlation table.
+        We next discuss how this correlation information from a single player is calculated.
+        <br />        <br />
+
+        <h4>The calculation of a single summoner's correlation</h4>
+        Given the champion mastery data for a single summoner, we may express this data in terms of a 1-dimensional array A[], where A[i] is the champion mastery score that 
+        the player has for champion i. If our summoner has never played a certain champion, then the corresponding array index would have a value of 0. We seek only to use a 
+        single players most played champion to correlate with his other champions. This is because a large number of players, the second most played champion may only have 1/3rd 
+        or half the mastery points of the most played champion. In these cases, it would no longer make sense to correlate the second most played to the remaining champions played.
+
+        
+        Further, let m denote the max value in the array A, and let this maximum occur at index j. 
+
+        To calculate the correlation of champion preferences that this summoner has, we apply the following algorithm:
+
+        <ol>
+            <li>Let A[j] = 0<br /></li>
+            <li>Let A[i] = A[i] * m for all i<br /></li>
+            <li>Let S = A[0] + A[1] + A[2]... + A[130] denote the sum over array A<br /></li>
+            <li>Normalize A such that the sum is equal to one: i.e. A[i] = A[i]/S for all i<br /></li>
+        </ol>
+
+        The reasoning behind each step is given below in detail:
+        <ol>
+            <li> 
+                If we do not zero A[j], then after multiplying A by m, A[j] will hold the value of m squared. This is guaranteed to be the largest value in A, and so when we go to
+                make a suggestion, we will inevitably suggest champion j. This is illogical, as the entire point is to suggest a different champion. 
+            </li>
+            <li>
+                This is the main calculation of "correlation", and is inspired by the dot product from mathematics. The dot product is a measure of how similar two vectors are, and can 
+                be 
+            </li>
+            <li>
+                See below
+            </li>
+            <li>
+                By dividing A by it's sum, we ensure that the sum of the resulting array is 1, consequently ensuring that every player has equal influence on the final table G. If we do not normalize A,
+                then players who have played more games (and higher mastery scores) will impact the table more than those that have played less. By normalizing each summoner's data before inserting into
+                the table, this ensures that each players data is equally treated, establishing an unbiased model. 
+            </li>
+        </ol>
+
+
+        <br /><br />
+        We update the original array G by the update operation G[j][i] = G[j][i] + A[i] for all i; j was the player's most played champion.
+
+        <br />
+
+        The technicalities described above require little more than static champion data, champion mastery data, and basic data structures such as arrays or lists. The majority of this happens in 
+        LandingController.cs, public ActionResult Index(FormCollection collection). 
+
+        <h3>Future Developments</h3>
+        There are a few features that I would like to implement to WSIT that are all realizable. I ran out of time for this API challenge, and will implement after results are out. In no particular order:
+        <ul>
+            <li>The ability for users to explicitly exclude champions from possible outputs. For those summoners that are super stubborn against trying Teemo.</li>
+            <li>A difficulty filter that allows users to receive suggestions that are no more difficult than they would like. Difficulty rating based on Riot's native asssesment of their champions. </li>
+            <li>Time-normalization. Because of how aggregate data works, newer champs are less favoured since they require more time to build up the same prevalent level of champion mastery (Aurelian Sol). By keeping all aggregate data relatively
+            new, this issue (may) be circumvented.</li>
+        </ul>
+
+        <h3>Conclusion</h3>
+        By using data available through Riot's API, WSIT built a correlation lookup table between champions based on champion mastery . This table is used to suggest players champions they should try, based on champions these players already enjoy.
+    </p>

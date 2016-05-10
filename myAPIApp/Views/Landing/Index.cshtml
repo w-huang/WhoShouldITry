@@ -1,0 +1,29 @@
+﻿<!DOCTYPE html>
+<html>
+    <head>
+        <title></title>
+    </head>
+    <body>
+
+        <div style="text-align:center"><img src="http://i.imgur.com/0q2bx1z.png?1" style="margin-top:20px; text-align:center" /></div>
+    @using (Html.BeginForm())
+    {
+        <div class="prompt" style="text-align:center; margin-top:0px">
+            <h3 style="text-align:center">Enter Summoner Name</h3>
+            @Html.TextBox("SummonerID", "", new { style = "width:500px" })
+            <input type="submit" value="Go!" class="btn btn-default" />
+        </div>
+        
+        <div style="text-align:center; margin-top:5px; vertical-align:central">
+            Only suggest champs I've NEVER played: 
+            @Html.CheckBox("onlyZeroPoints", true)
+        </div>
+            
+
+    }
+        <div style="text-align:center; margin-top:10px">
+            <p>Who should I try takes your favourite champions into account, and suggests a champion for you to try! <br /> By default, only champions you've never played will be suggested.</p>
+        </div>
+    </body>
+
+</html>
