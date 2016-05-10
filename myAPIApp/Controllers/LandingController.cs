@@ -16,7 +16,7 @@ namespace myAPIApp.Controllers
 {
     public class LandingController : Controller
     {
-        private const string apiKey = "";
+        private const string apiKey = "api_key=91a00623-5397-4358-9481-608740057501";
         // GET: Landing
         public ActionResult Index()
         {
@@ -31,6 +31,14 @@ namespace myAPIApp.Controllers
                 Dictionary<int, int> reverseMap = indexToIdMap();
                 List<ChampionMastery> champsUsed = getPlayerMasteries(getPlayerID(collection["SummonerID"]));
                 int threshold = collection["onlyZeroPoints"].Contains("true") ? 1 : 6000;
+                bool[] diffs = new bool[10];
+                string s = "diff";
+                for(int i = 0; i < 10; ++i)
+                {
+                    diffs[i] = collection[s + (i+1).ToString()].Contains("true");
+                }
+
+
 
                 int[] top3champs = new int[3];
                 top3champs[0] = champsUsed[0].championId;
@@ -62,6 +70,18 @@ namespace myAPIApp.Controllers
                     }
                 }
 
+                //filter difficulties
+                foreach(JToken child in getChampionNodes())
+                {
+                    if( !diffs[(int) child.First.SelectToken("info").SelectToken("difficulty") - 1])
+                    {
+                        int id;
+                        indicies.TryGetValue((int) child.First.SelectToken("key"), out id);
+                        correlations[id] = float.MinValue;
+                    }
+                }
+                
+
                 //find top 3 values in correlation array
                 List<int> suggestedChamps = new List<int>();
                 ViewBag.ChampNames = new string[3];
@@ -79,6 +99,8 @@ namespace myAPIApp.Controllers
                     correlations[index] = float.MinValue;
                 }
 
+                
+
                 ViewBag.Message = "Based on the champs that you've done well with and enjoyed, we recommend you try: ";
 
 
@@ -86,7 +108,7 @@ namespace myAPIApp.Controllers
 
                 return View("Detail");
             }
-            catch (System.Net.WebException e)
+            catch (WebException e)
             {
                 ViewBag.Title = e.Message;
                 return View("ErrorScreen");
@@ -216,6 +238,9 @@ namespace myAPIApp.Controllers
 
             return "default_value";
         }
+
+
+
         public JToken getChampionNode(int champID)
         {
             string base_url = AppDomain.CurrentDomain.BaseDirectory;
@@ -232,6 +257,28 @@ namespace myAPIApp.Controllers
             }
 
             return root;
+        }
+
+        public JEnumerable<JToken> getChampionNodes()
+        {
+            string base_url = AppDomain.CurrentDomain.BaseDirectory;
+            string full_url = base_url + "/App_Data/staticChampData.json";
+            StreamReader sr = new StreamReader(full_url);
+            JToken root = JObject.Parse(sr.ReadToEnd());
+            root = root.SelectToken("data");
+
+            return root.Children();
+
+            /*
+            foreach (JToken child in root.Children())
+            {
+                if (champID == (int)child.First.SelectToken("key"))
+                {
+                    return child.First;
+                }
+            }
+
+            return root;*/
         }
     }
 }

@@ -12,7 +12,8 @@
         <br /><br />
         Who Should I Try is my submission to the April 2016 Riot API Challenge. Link <a href="https://developer.riotgames.com/discussion/announcements/show/eoq3tZd1"> here</a>
         <br/><br/>
-        &copy; @DateTime.Now.Year Wilson Huang (Blargz), all ideas and content not of direct ownership to Riot Games.
+        
+        All Content directly related to League of Legends and as specified by Riot's Developer Agreements belongs to Riot Games.<br /> Everything else on this website, ideas included are &copy; @DateTime.Now.Year Wilson Huang (Blargz).
         
         <br /><br />
 
@@ -130,9 +131,10 @@
         There are a few features that I would like to implement to WSIT that are all realizable. I ran out of time for this API challenge, and will implement after results are out. In no particular order:
         <ul>
             <li>The ability for users to explicitly exclude champions from possible outputs. For those summoners that are super stubborn against trying Teemo.</li>
-            <li>A difficulty filter that allows users to receive suggestions that are no more difficult than they would like. Difficulty rating based on Riot's native asssesment of their champions. </li>
+            <li><strike>A difficulty filter that allows users to receive suggestions that are no more difficult than they would like. Difficulty rating based on Riot's native asssesment of their champions. </strike> Implemented with 20 minutes left.</li>
             <li>Time-normalization. Because of how aggregate data works, newer champs are less favoured since they require more time to build up the same prevalent level of champion mastery (Aurelian Sol). By keeping all aggregate data relatively
             new, this issue (may) be circumvented.</li>
+            <li>Due to last minute implementation of difficulty filter, I was unable to implement a check if the user over-filters. I.e. He has specified filters that resolve to fewer than 3 viable champions. In this case, unviable champions will be displayed. Small bug that can be avoided.</li>
         </ul>
 
         <h3>Conclusion</h3>

@@ -18,11 +18,28 @@
             Only suggest champs I've NEVER played: 
             @Html.CheckBox("onlyZeroPoints", true)
         </div>
+        
+        <table align="center">
+            <tr><td>Champion Difficulty:</td>
+                <td>1: @Html.CheckBox("diff1",true)</td>
+                <td>2: @Html.CheckBox("diff2", true)</td>
+                <td>3: @Html.CheckBox("diff3", true)</td>
+                <td>4: @Html.CheckBox("diff4", true)</td>
+                <td>5: @Html.CheckBox("diff5", true)</td>
+                <td>6: @Html.CheckBox("diff6", true)</td>
+                <td>7: @Html.CheckBox("diff7", true)</td>
+                <td>8: @Html.CheckBox("diff8", true)</td>
+                <td>9: @Html.CheckBox("diff9", true)</td>
+                <td>10: @Html.CheckBox("diff10", true)</td>
+
+            </tr>
+        </table>
+        
             
 
     }
         <div style="text-align:center; margin-top:10px">
-            <p>Who should I try takes your favourite champions into account, and suggests a champion for you to try! <br /> By default, only champions you've never played will be suggested.</p>
+            <p>Who should I try takes your favourite champions into account, and suggests a champion for you to try! <br /> By default, only champions you've never played will be suggested. <br /> You can also filter by champion difficulty! <br /> NOTE: DO NOT OVER FILTER!! If your filtering results in less than 3 viable champs, some incorrect responses will be returned! </p>
         </div>
     </body>
 
