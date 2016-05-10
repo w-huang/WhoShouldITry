@@ -16,7 +16,7 @@ namespace myAPIApp.Controllers
 {
     public class LandingController : Controller
     {
-        private const string apiKey = "api_key=91a00623-5397-4358-9481-608740057501";
+        private const string apiKey = "";
         // GET: Landing
         public ActionResult Index()
         {
